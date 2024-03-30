@@ -85,7 +85,7 @@ namespace FBI
                     uint peSignature = BitConverter.ToUInt32(peSignatureBytes, 0);
                     if (peSignature != 0x00004550) // "PE\0\0"
                     {
-                        MessageBox.Show("Error code: 99");
+                        MessageBox.Show("Not a valid PE file");
                         return 99;
                     }
 
@@ -112,7 +112,7 @@ namespace FBI
             catch (Exception ex)
             {
                 string msg = ex.Message;
-                MessageBox.Show("Error code: 97");
+                MessageBox.Show("Unknown architecture");
                 return 97;
             }
         }
@@ -121,20 +121,7 @@ namespace FBI
             try
             {
                 string targetAppPath = AppPath.Text;
-                int targetAppArchitecture = GetExecutableArchitecture(targetAppPath);
-                if (targetAppArchitecture == 32)
-                {
-                    ForceBindExe = "ForceBindIP.exe";
-                }
-                else if (targetAppArchitecture == 64)
-                {
-                    ForceBindExe = "ForceBindIP64.exe";
-                }
-                else
-                {
-                    MessageBox.Show("Error code: 97");
-                    return;
-                }
+                ForceBindExe = "ForceBindIP64.exe"; // Set ForceBindExe to ForceBindIP64.exe by default
 
                 string args = $"{((NetworkAdapterInfo)NetAdapter.SelectedItem).IP} \"{targetAppPath}\"";
                 ProcessStartInfo psi = new ProcessStartInfo();
@@ -154,8 +141,10 @@ namespace FBI
             OpenFileDialog diag = new OpenFileDialog();
             diag.Filter = "Application (*.exe)|*.exe";
             diag.Multiselect = false;
-            diag.Title = "Select a application to open";
-            if (diag.ShowDialog() == DialogResult.Equals(true))
+            diag.Title = "Select an application to open";
+
+            // Check if the user clicked OK in the dialog
+            if (diag.ShowDialog() == true)
                 AppPath.Text = diag.FileName;
         }
         private void NetAdapter_ContextMenuOpening(object sender, ContextMenuEventArgs e)
