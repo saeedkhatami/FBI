@@ -67,55 +67,6 @@ namespace FBI
                 }
             }
         }
-        public static int GetExecutableArchitecture(string filePath)
-        {
-            try
-            {
-                using (FileStream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-                {
-                    stream.Seek(0x3C, SeekOrigin.Begin);
-                    byte[] peOffsetBytes = new byte[4];
-                    stream.Read(peOffsetBytes, 0, 4);
-                    int peOffset = BitConverter.ToInt32(peOffsetBytes, 0);
-
-                    stream.Seek(peOffset, SeekOrigin.Begin);
-                    byte[] peSignatureBytes = new byte[4];
-                    stream.Read(peSignatureBytes, 0, 4);
-
-                    uint peSignature = BitConverter.ToUInt32(peSignatureBytes, 0);
-                    if (peSignature != 0x00004550) // "PE\0\0"
-                    {
-                        MessageBox.Show("Not a valid PE file");
-                        return 99;
-                    }
-
-                    stream.Seek(0x4, SeekOrigin.Current); // Skip machine architecture field
-                    byte[] machineBytes = new byte[2];
-                    stream.Read(machineBytes, 0, 2);
-                    ushort machine = BitConverter.ToUInt16(machineBytes, 0);
-
-                    if (machine == 0x8664) // AMD64
-                    {
-                        return 64;
-                    }
-                    else if (machine == 0x014C) // x86
-                    {
-                        return 32;
-                    }
-                    else
-                    {
-                        MessageBox.Show("Error code: 98");
-                        return 98;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                string msg = ex.Message;
-                MessageBox.Show("Unknown architecture");
-                return 97;
-            }
-        }
         private void LaunchApp()
         {
             try
@@ -146,10 +97,6 @@ namespace FBI
             // Check if the user clicked OK in the dialog
             if (diag.ShowDialog() == true)
                 AppPath.Text = diag.FileName;
-        }
-        private void NetAdapter_ContextMenuOpening(object sender, ContextMenuEventArgs e)
-        {
-            LoadAvailableNetworkAdapters();
         }
         private void A_MouseMove(object sender, MouseEventArgs e)
         {
