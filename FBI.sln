@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34723.18
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FBI", "FBI.csproj", "{94E4252F-9243-47FC-9BA5-6760AC1AB987}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{94E4252F-9243-47FC-9BA5-6760AC1AB987}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94E4252F-9243-47FC-9BA5-6760AC1AB987}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94E4252F-9243-47FC-9BA5-6760AC1AB987}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94E4252F-9243-47FC-9BA5-6760AC1AB987}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2440348D-099B-429C-A71A-F139D3A9DE0E}
+	EndGlobalSection
+EndGlobal
