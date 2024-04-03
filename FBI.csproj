@@ -10,7 +10,7 @@
     <ApplicationIcon>FBI.ico</ApplicationIcon>
     <PlatformTarget>x64</PlatformTarget>
     <SignAssembly>False</SignAssembly>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <Description>Force Bind IP GUI WPF</Description>
     <PackageProjectUrl>https://github.com/saeedkhatami/FBI</PackageProjectUrl>
     <PackageIcon>Frame 2.png</PackageIcon>

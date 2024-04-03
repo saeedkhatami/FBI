@@ -19,27 +19,26 @@ namespace FBI
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly string localVersion = "0.1.0";
-        private readonly string[] RequieredFiles = new string[] { "BindIP.dll", "BindIP64.dll", "ForceBindIP.exe", "ForceBindIP64.exe" };
+        // Define localVersion and RequiredFiles
+        private readonly string localVersion = "0.2.0";
+        private readonly string[] RequiredFiles = new string[] { "BindIP.dll", "BindIP64.dll", "ForceBindIP.exe", "ForceBindIP64.exe" };
+        private string ForceBindIPPath => Environment.CurrentDirectory;
+        private string ForceBindExe;
+
+        // Constructor
         public MainWindow()
         {
             InitializeComponent();
-            CheckRequieredFiles();
-            DownloadProgress.Visibility = Visibility.Hidden;
+            // Perform initialization tasks
+            CheckRequiredFiles();
+            DownloadBar.Visibility = Visibility.Hidden;
             CheckForUpdates();
+            // Attach event handlers
             BrowseApp.Click += (sender, e) => OpenAppSelector();
             Start.Click += (sender, e) => LaunchApp();
             NetAdapter.DropDownOpened += (sender, e) => LoadAvailableNetworkAdapters();
         }
-        private string ForceBindIPPath => Environment.CurrentDirectory;
-        private string ForceBindExe;
-        private void Window_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Pressed)
-            {
-                this.DragMove();
-            }
-        }
+        // Load available network adapters into the dropdown list
         private void LoadAvailableNetworkAdapters()
         {
             NetAdapter.Items.Clear();
@@ -55,10 +54,12 @@ namespace FBI
                 }
             }
         }
-        private void CheckRequieredFiles()
+
+        // Check if required files exist
+        private void CheckRequiredFiles()
         {
             string curDir = Environment.CurrentDirectory;
-            foreach (string s in RequieredFiles)
+            foreach (string s in RequiredFiles)
             {
                 if (!File.Exists(Path.Combine(curDir, s)))
                 {
@@ -67,13 +68,22 @@ namespace FBI
                 }
             }
         }
+
+        // Launch the selected application with ForceBindIP
         private void LaunchApp()
         {
+
             try
             {
                 string targetAppPath = AppPath.Text;
-                ForceBindExe = "ForceBindIP64.exe"; // Set ForceBindExe to ForceBindIP64.exe by default
-
+                if (x64or86.IsChecked == true)
+                {
+                    ForceBindExe = "ForceBindIP64.exe";
+                }
+                else
+                {
+                    ForceBindExe = "ForceBindIP.exe";
+                }
                 string args = $"{((NetworkAdapterInfo)NetAdapter.SelectedItem).IP} \"{targetAppPath}\"";
                 ProcessStartInfo psi = new ProcessStartInfo();
                 psi.FileName = Path.Combine(ForceBindIPPath, ForceBindExe);
@@ -87,6 +97,7 @@ namespace FBI
             }
         }
 
+        // Open file selector dialog to choose application
         private void OpenAppSelector()
         {
             OpenFileDialog diag = new OpenFileDialog();
@@ -94,17 +105,11 @@ namespace FBI
             diag.Multiselect = false;
             diag.Title = "Select an application to open";
 
-            // Check if the user clicked OK in the dialog
             if (diag.ShowDialog() == true)
                 AppPath.Text = diag.FileName;
         }
-        private void A_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Pressed)
-            {
-                this.DragMove();
-            }
-        }
+
+        // Check for updates on GitHub repository
         private async void CheckForUpdates()
         {
             var client = new GitHubClient(new ProductHeaderValue("FBI"));
@@ -121,7 +126,6 @@ namespace FBI
 
                     if (result == MessageBoxResult.Yes)
                     {
-                        // Download the ZIP file and show progress
                         await DownloadAndShowProgress(latestRelease.Assets[0].BrowserDownloadUrl);
                     }
                 }
@@ -135,6 +139,8 @@ namespace FBI
                 MessageBox.Show("No releases found for the repository.");
             }
         }
+
+        // Check if an update is available
         private bool IsUpdateAvailable(string localVersion, string latestVersion)
         {
             Version local = new Version(localVersion);
@@ -142,6 +148,8 @@ namespace FBI
 
             return latest > local;
         }
+
+        // Download the update and show progress
         private async Task DownloadAndShowProgress(string downloadUrl)
         {
             using (var httpClient = new HttpClient())
@@ -152,7 +160,6 @@ namespace FBI
                 var totalBytes = response.Content.Headers.ContentLength ?? -1;
                 var bytesRead = 0L;
 
-                // Corrected usage of FileStream constructor
                 using (var fileStream = new FileStream("FBI.zip", FileMode.Create, FileAccess.Write))
                 {
                     using (var stream = await response.Content.ReadAsStreamAsync())
@@ -165,15 +172,14 @@ namespace FBI
                             await fileStream.WriteAsync(buffer, 0, bytesReadThisTime);
                             bytesRead += bytesReadThisTime;
 
-                            // Update progress bar
-                            DownloadProgress.Visibility = Visibility.Visible;
-                            DownloadProgress.Value = (double)bytesRead / totalBytes * 100;
+                            DownloadBar.Visibility = Visibility.Visible;
+                            DownloadBar.Value = (double)bytesRead / totalBytes * 100;
                         } while (bytesReadThisTime > 0);
                     }
                 }
 
                 MessageBox.Show("Download complete!");
-                DownloadProgress.Visibility = Visibility.Hidden;
+                DownloadBar.Visibility = Visibility.Hidden;
 
                 var result = MessageBox.Show("Download complete! Do you want to extract and install the latest version now?", "Download Complete", MessageBoxButton.YesNo);
                 if (result == MessageBoxResult.Yes)
@@ -184,17 +190,15 @@ namespace FBI
                 System.Windows.Application.Current.Shutdown();
             }
         }
+
+        // Extract and install the downloaded update
         private void ExtractAndInstall(string zipFilePath)
         {
             try
             {
                 ExtractZipFile(zipFilePath);
-
-                // Launch the updated version
                 var appPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "FBI.exe");
                 Process.Start(appPath);
-
-                // Close the current instance
                 Application.Current.Shutdown();
             }
             catch (Exception ex)
@@ -202,14 +206,13 @@ namespace FBI
                 MessageBox.Show($"Error extracting or installing the latest version: {ex.Message}");
             }
         }
+
+        // Extract ZIP file
         private void ExtractZipFile(string zipFilePath)
         {
             try
             {
-                // Extract ZIP file contents
                 ZipFile.ExtractToDirectory(zipFilePath, "temp");
-
-                // Replace the old version with the updated one
                 ReplaceOldVersion("temp");
             }
             catch (Exception ex)
@@ -217,28 +220,24 @@ namespace FBI
                 MessageBox.Show($"Error extracting or replacing files: {ex.Message}");
             }
         }
+
+        // Replace old version with the updated one
         private void ReplaceOldVersion(string tempFolderPath)
         {
-            // Replace the old version with the updated one
             try
             {
                 var oldAppFolderPath = AppDomain.CurrentDomain.BaseDirectory;
                 var tempAppFolderPath = Path.Combine(tempFolderPath, "FBI");
 
-                // Copy files from temporary folder to the application folder
                 foreach (var file in Directory.GetFiles(tempAppFolderPath, "*", SearchOption.AllDirectories))
                 {
                     var relativePath = file.Substring(tempAppFolderPath.Length + 1);
                     var destinationPath = Path.Combine(oldAppFolderPath, relativePath);
 
-                    // Create directories if they don't exist
                     Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
-
-                    // Copy the file
                     File.Copy(file, destinationPath, true);
                 }
 
-                // Delete the temporary folder
                 Directory.Delete(tempFolderPath, true);
             }
             catch (Exception ex)
@@ -246,21 +245,38 @@ namespace FBI
                 MessageBox.Show($"Error replacing old version: {ex.Message}");
             }
         }
+
+        // Shutdown the application
         private void Exit_Click(object sender, RoutedEventArgs e)
         {
             Application.Current.Shutdown();
         }
+
+        // Minimize the window
         private void Minimize_Click(object sender, RoutedEventArgs e)
         {
             this.WindowState = WindowState.Minimized;
         }
+
+        // Set the window to always on top
         private void AlwaysOnTop_Checked(object sender, RoutedEventArgs e)
         {
             this.Topmost = true;
         }
+
+        // Unset the window from always on top
         private void AlwaysOnTop_Unchecked(object sender, RoutedEventArgs e)
         {
             this.Topmost = false;
+        }
+
+        // Method to handle dragging the window
+        private void A_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                this.DragMove();
+            }
         }
     }
 }

@@ -603,17 +603,17 @@
         </Style>
     </Window.Resources>
     <Grid>
-        <Border x:Name="A" BorderBrush="#1B1A55" Background="#070F2B" CornerRadius="15" BorderThickness="1" HorizontalAlignment="Center" Height="225" VerticalAlignment="Center" Width="400" MouseMove="A_MouseMove"/>
-        <Button Style="{DynamicResource ButtonStyle1}" x:Name="Start" Content="Start" BorderThickness="3" HorizontalAlignment="Left" Margin="252,0,0,0" VerticalAlignment="Center" Width="95" Height="95" Background="#FF496989" BorderBrush="#FF58A399" Foreground="#FFE2F4C5" FontWeight="Bold">
+        <Border x:Name="A" BorderBrush="#1B1A55" Background="#070F2B" CornerRadius="15" BorderThickness="1" HorizontalAlignment="Center" Height="225" VerticalAlignment="Center" Width="400" MouseDown="A_MouseDown"/>
+        <Button Style="{DynamicResource ButtonStyle1}" x:Name="Start" Content="Start" BorderThickness="3" HorizontalAlignment="Left" Margin="285,0,0,0" VerticalAlignment="Center" Width="95" Height="95" Background="#FF496989" BorderBrush="#FF58A399" Foreground="#FFE2F4C5" FontWeight="Bold">
             <Button.Resources>
                 <Style TargetType="Border">
                     <Setter Property="CornerRadius" Value="500"/>
                 </Style>
             </Button.Resources>
         </Button>
-        <TextBox x:Name="AppPath" HorizontalAlignment="Left" Margin="26,51,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="178" Height="18" Background="#FF496989" BorderBrush="{x:Null}" Foreground="#FFE2F4C5" SelectionBrush="#FF1B1A55"/>
-        <ComboBox Style="{DynamicResource ComboBoxStyle1}" x:Name="NetAdapter" HorizontalAlignment="Left" Margin="26,137,0,0" VerticalAlignment="Top" Width="205"  Background="#FF9290C3" BorderBrush="{x:Null}" Foreground="#FFE2F4C5"/>
-        <Button Style="{DynamicResource ButtonStyle2}" x:Name="BrowseApp" Content="..." HorizontalAlignment="Left" Margin="209,51,0,0" VerticalAlignment="Top" Width="22" Height="18" Background="#FF496989" BorderBrush="{x:Null}" Foreground="#FFE2F4C5" Padding="-0.25,-9,0,0" Cursor="Hand">
+        <TextBox x:Name="AppPath" HorizontalAlignment="Left" Margin="26,51,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="227" Height="18" Background="#FF496989" BorderBrush="{x:Null}" Foreground="#FFE2F4C5" SelectionBrush="#FF1B1A55" AcceptsTab="True" IsReadOnly="True"/>
+        <ComboBox Style="{DynamicResource ComboBoxStyle1}" x:Name="NetAdapter" HorizontalAlignment="Left" Margin="26,137,0,0" VerticalAlignment="Top" Width="254"  Background="#FF9290C3" BorderBrush="{x:Null}" Foreground="#FFE2F4C5"/>
+        <Button Style="{DynamicResource ButtonStyle2}" x:Name="BrowseApp" Content="..." HorizontalAlignment="Left" Margin="258,51,0,0" VerticalAlignment="Top" Width="22" Height="18" Background="#FF496989" BorderBrush="{x:Null}" Foreground="#FFE2F4C5" Padding="-0.25,-9,0,0" Cursor="Hand">
             <Button.Resources>
                 <Style TargetType="{x:Type Border}">
                     <Setter Property="CornerRadius" Value="5"/>
@@ -634,10 +634,11 @@
                 </Style>
             </Button.Resources>
         </Button>
-        <ProgressBar x:Name="DownloadProgress" HorizontalAlignment="Left" Height="10" Margin="26,205,0,0" VerticalAlignment="Top" Width="344" BorderBrush="{x:Null}" Foreground="#FFA0153E"/>
-        <Label Content="V 0.1.0" HorizontalAlignment="Left" Margin="285,165,0,0" VerticalAlignment="Top" Foreground="#FFE2F4C5" FontWeight="Bold" FontSize="6"/>
+        <ProgressBar x:Name="DownloadBar" HorizontalAlignment="Left" Height="10" Margin="26,205,0,0" VerticalAlignment="Top" Width="344" BorderBrush="{x:Null}" Foreground="#FFA0153E"/>
+        <Label Content="V 0.2.0" HorizontalAlignment="Left" Margin="318,165,0,0" VerticalAlignment="Top" Foreground="#FFE2F4C5" FontWeight="Bold" FontSize="6"/>
         <CheckBox Style="{DynamicResource CheckBoxStyle1}" x:Name="AlwaysOnTop" Content="Always on top" HorizontalAlignment="Left" Margin="10,185,0,0" VerticalAlignment="Top" Foreground="#FFE2F4C5" FontWeight="Bold" Background="#FF496989" Checked="AlwaysOnTop_Checked" Unchecked="AlwaysOnTop_Unchecked" Cursor="Hand"/>
         <Label Content="Select Application" HorizontalAlignment="Left" Margin="26,25,0,0" VerticalAlignment="Top" Foreground="#FFE2F4C5" Width="178" FontWeight="Bold"/>
         <Label Content="Select Network Interface" HorizontalAlignment="Left" Margin="26,112,0,0" VerticalAlignment="Top" Foreground="#FFE2F4C5" Width="205" FontWeight="Bold"/>
+        <CheckBox Style="{DynamicResource CheckBoxStyle1}" x:Name="x64or86" Content="64bit Application" HorizontalAlignment="Left" Margin="28,74,0,0" VerticalAlignment="Top" Foreground="#FFE2F4C5" FontWeight="Bold" Background="#FF496989" Unchecked="AlwaysOnTop_Unchecked" Cursor="Hand"/>
     </Grid>
 </Window>
