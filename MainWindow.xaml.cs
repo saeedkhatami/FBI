@@ -290,5 +290,7 @@ namespace FBI
                 this.DragMove();
             }
         }
+
+        // todo: auto architecture detector
     }
 }
