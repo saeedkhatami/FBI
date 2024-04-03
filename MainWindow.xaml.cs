@@ -20,7 +20,7 @@ namespace FBI
     public partial class MainWindow : Window
     {
         // Define localVersion and RequiredFiles
-        private readonly string localVersion = "0.2.0";
+        private readonly string localVersion = "0.2.1";
         private readonly string[] RequiredFiles = new string[] { "BindIP.dll", "BindIP64.dll", "ForceBindIP.exe", "ForceBindIP64.exe" };
         private string ForceBindIPPath => Environment.CurrentDirectory;
         private string ForceBindExe;
@@ -235,6 +235,17 @@ namespace FBI
                     var destinationPath = Path.Combine(oldAppFolderPath, relativePath);
 
                     Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
+
+                    // If the file is FBI.exe or FBI.dll, close the process before replacing it, bug found in version 0.2.0 which this code is in 0.1.0
+                    if (Path.GetFileName(file) == "FBI.exe" || Path.GetFileName(file) == "FBI.dll")
+                    {
+                        foreach (var process in Process.GetProcessesByName(Path.GetFileNameWithoutExtension(destinationPath)))
+                        {
+                            process.Kill(); // Kill the process using the file
+                            process.WaitForExit(); // Wait until the process is terminated
+                        }
+                    }
+
                     File.Copy(file, destinationPath, true);
                 }
 
@@ -245,6 +256,7 @@ namespace FBI
                 MessageBox.Show($"Error replacing old version: {ex.Message}");
             }
         }
+
 
         // Shutdown the application
         private void Exit_Click(object sender, RoutedEventArgs e)
