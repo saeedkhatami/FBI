@@ -635,10 +635,11 @@
             </Button.Resources>
         </Button>
         <ProgressBar x:Name="DownloadBar" HorizontalAlignment="Left" Height="10" Margin="26,205,0,0" VerticalAlignment="Top" Width="344" BorderBrush="{x:Null}" Foreground="#FFA0153E"/>
-        <Label Content="V 0.2.1" HorizontalAlignment="Left" Margin="318,165,0,0" VerticalAlignment="Top" Foreground="#FFE2F4C5" FontWeight="Bold" FontSize="6"/>
+        <Label Content="V 0.3.0" HorizontalAlignment="Left" Margin="318,165,0,0" VerticalAlignment="Top" Foreground="#FFE2F4C5" FontWeight="Bold" FontSize="6"/>
         <CheckBox Style="{DynamicResource CheckBoxStyle1}" x:Name="AlwaysOnTop" Content="Always on top" HorizontalAlignment="Left" Margin="10,185,0,0" VerticalAlignment="Top" Foreground="#FFE2F4C5" FontWeight="Bold" Background="#FF496989" Checked="AlwaysOnTop_Checked" Unchecked="AlwaysOnTop_Unchecked" Cursor="Hand"/>
-        <Label Content="Select Application" HorizontalAlignment="Left" Margin="26,25,0,0" VerticalAlignment="Top" Foreground="#FFE2F4C5" Width="178" FontWeight="Bold"/>
-        <Label Content="Select Network Interface" HorizontalAlignment="Left" Margin="26,112,0,0" VerticalAlignment="Top" Foreground="#FFE2F4C5" Width="205" FontWeight="Bold"/>
-        <CheckBox Style="{DynamicResource CheckBoxStyle1}" x:Name="x64or86" Content="64bit Application" HorizontalAlignment="Left" Margin="28,74,0,0" VerticalAlignment="Top" Foreground="#FFE2F4C5" FontWeight="Bold" Background="#FF496989" Unchecked="AlwaysOnTop_Unchecked" Cursor="Hand"/>
+        <Label Content="Select Application" HorizontalAlignment="Left" Margin="26,25,0,0" VerticalAlignment="Top" Foreground="#FFE2F4C5" Width="114" FontWeight="Bold"/>
+        <Label Content="Select Network Interface" HorizontalAlignment="Left" Margin="26,112,0,0" VerticalAlignment="Top" Foreground="#FFE2F4C5" Width="153" FontWeight="Bold"/>
+        <Label Content="Application architecture: " HorizontalAlignment="Left" Margin="26,74,0,0" VerticalAlignment="Top" Foreground="#FFE2F4C5" Width="127" Height="19" Padding="0,0,0,0" FontWeight="Thin"/>
+        <Label x:Name="architecture" Content="x" HorizontalAlignment="Left" Margin="150,74,0,0" VerticalAlignment="Top" Foreground="#FFE2F4C5" Width="20" Height="19" Padding="0,0,0,0" FontWeight="Thin"/>
     </Grid>
 </Window>

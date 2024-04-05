@@ -1,13 +1,11 @@
 ﻿using System.Net.NetworkInformation;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.Win32;
 using Octokit;
 using System.Net.Http;
-using System.Threading.Tasks;
 using FileMode = System.IO.FileMode;
 using System.IO.Compression;
 using Application = System.Windows.Application;
@@ -20,11 +18,16 @@ namespace FBI
     public partial class MainWindow : Window
     {
         // Define localVersion and RequiredFiles
-        private readonly string localVersion = "0.2.1";
+        private readonly string localVersion = "0.3.0";
         private readonly string[] RequiredFiles = new string[] { "BindIP.dll", "BindIP64.dll", "ForceBindIP.exe", "ForceBindIP64.exe" };
         private string ForceBindIPPath => Environment.CurrentDirectory;
         private string ForceBindExe;
-
+        enum PlatformFile : uint
+        {
+            Unknown = 0,
+            x86 = 1,
+            x64 = 2
+        }
         // Constructor
         public MainWindow()
         {
@@ -72,30 +75,38 @@ namespace FBI
         // Launch the selected application with ForceBindIP
         private void LaunchApp()
         {
-
             try
             {
                 string targetAppPath = AppPath.Text;
-                if (x64or86.IsChecked == true)
+                if (NetAdapter.SelectedItem != null)
                 {
-                    ForceBindExe = "ForceBindIP64.exe";
+                    if (GetPlatformFile(AppPath.Text) == PlatformFile.x64)
+                    {
+                        ForceBindExe = "ForceBindIP64.exe";
+                    }
+                    else if (GetPlatformFile(AppPath.Text) == PlatformFile.x86)
+                    {
+                        ForceBindExe = "ForceBindIP.exe";
+                    }
+
+                    string args = $"{((NetworkAdapterInfo)NetAdapter.SelectedItem).IP} \"{targetAppPath}\"";
+                    ProcessStartInfo psi = new ProcessStartInfo();
+                    psi.FileName = Path.Combine(ForceBindIPPath, ForceBindExe);
+                    psi.Arguments = args;
+                    psi.WorkingDirectory = Path.GetDirectoryName(targetAppPath);
+                    Process.Start(psi);
                 }
                 else
                 {
-                    ForceBindExe = "ForceBindIP.exe";
+                    MessageBox.Show("Please select an app or network adapter.");
                 }
-                string args = $"{((NetworkAdapterInfo)NetAdapter.SelectedItem).IP} \"{targetAppPath}\"";
-                ProcessStartInfo psi = new ProcessStartInfo();
-                psi.FileName = Path.Combine(ForceBindIPPath, ForceBindExe);
-                psi.Arguments = args;
-                psi.WorkingDirectory = Path.GetDirectoryName(targetAppPath);
-                Process.Start(psi);
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
         }
+
 
         // Open file selector dialog to choose application
         private void OpenAppSelector()
@@ -107,6 +118,8 @@ namespace FBI
 
             if (diag.ShowDialog() == true)
                 AppPath.Text = diag.FileName;
+
+            architecture.Content = GetPlatformFile(AppPath.Text);
         }
 
         // Check for updates on GitHub repository
@@ -290,7 +303,31 @@ namespace FBI
                 this.DragMove();
             }
         }
+        
+        // Auto architecture detector
+        static PlatformFile GetPlatformFile(string filePath)
+        {
+            using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            using (BinaryReader br = new BinaryReader(fs))
+            {
+                fs.Seek(0x3C, SeekOrigin.Begin);
+                int peOffset = br.ReadInt32();
+                fs.Seek(peOffset, SeekOrigin.Begin);
+                uint peHead = br.ReadUInt32();
 
-        // todo: auto architecture detector
+                if (peHead != 0x00004550)
+                    return PlatformFile.Unknown;
+
+                fs.Seek(peOffset + 4, SeekOrigin.Begin);
+                ushort machine = br.ReadUInt16();
+
+                if (machine == 0x014c)
+                    return PlatformFile.x86;
+                else if (machine == 0x8664)
+                    return PlatformFile.x64;
+                else
+                    return PlatformFile.Unknown;
+            }
+        }
     }
 }
