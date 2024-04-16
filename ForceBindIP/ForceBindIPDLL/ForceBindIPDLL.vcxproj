@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- this must be on top of props include, otherwise it doesn't work and compiles as an application -->
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <TargetName>BindIP</TargetName>
+  </PropertyGroup>
+  <Import Project="$(SolutionDir)\ForceBindIP.props" />
+  <!-- this must be present, otherwise VS reads configuration properties in a wrong way with empty pages -->
+  <PropertyGroup Label="Configuration">
+  </PropertyGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{D2B051D3-BA8D-4CD3-BB64-88D4D9E85814}</ProjectGuid>
+    <RootNamespace>ForceBindIPDLL</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Label="UserMacros">
+    <AdditionalLinkDependencies>ws2_32.lib</AdditionalLinkDependencies>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+    <Link>
+      <EntryPointSymbol>DllMain</EntryPointSymbol>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="BindIPDLL.c" />
+  </ItemGroup>
+</Project>
