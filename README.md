@@ -41,6 +41,10 @@ FBI is compatible with Windows operating systems.
 
 Contributions to FBI are welcome! Feel free to fork the repository, make improvements, and submit pull requests.
 
+[FBI](https://r1ch.net/projects/forcebindip)
+
+[reFBI](https://github.com/saeedkhatami/FBI/tree/master/reForceBindIP)
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
