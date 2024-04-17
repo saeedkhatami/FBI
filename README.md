@@ -1,6 +1,6 @@
 # FBI (Force Bind IP)
 
----
+- based on [r1ch](https://r1ch.net/projects/forcebindip)'s Force Bind IP
 
 ## Overview
 
@@ -40,10 +40,6 @@ FBI is compatible with Windows operating systems.
 ## Contribution
 
 Contributions to FBI are welcome! Feel free to fork the repository, make improvements, and submit pull requests.
-
-[FBI](https://r1ch.net/projects/forcebindip)
-
-[reFBI](https://github.com/saeedkhatami/FBI/tree/master/reForceBindIP)
 
 ## License
 
