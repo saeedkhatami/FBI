@@ -15,15 +15,56 @@
     <PackageProjectUrl>https://github.com/saeedkhatami/FBI</PackageProjectUrl>
     <PackageIcon>Frame 2.png</PackageIcon>
     <RepositoryUrl>https://github.com/saeedkhatami/FBI</RepositoryUrl>
+    <OutputPath>$(SolutionDir)build\$(Platform).$(Configuration)\bin</OutputPath> 
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <Platforms>AnyCPU;x64</Platforms>
+    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+    <GenerateDocumentationFile>False</GenerateDocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>none</DebugType>
+    <WarningLevel>9999</WarningLevel>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <DebugType>none</DebugType>
+    <WarningLevel>9999</WarningLevel>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DebugType>none</DebugType>
+    <WarningLevel>9999</WarningLevel>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <DebugType>none</DebugType>
+    <WarningLevel>9999</WarningLevel>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="build\**" />
+    <Compile Remove="ForceBindIPDLL\**" />
+    <Compile Remove="ForceBindIP\**" />
+    <Compile Remove="TestAppNative\**" />
+    <Compile Remove="TestApp\**" />
+    <EmbeddedResource Remove="build\**" />
+    <EmbeddedResource Remove="ForceBindIPDLL\**" />
+    <EmbeddedResource Remove="ForceBindIP\**" />
+    <EmbeddedResource Remove="TestAppNative\**" />
+    <EmbeddedResource Remove="TestApp\**" />
+    <None Remove="build\**" />
+    <None Remove="ForceBindIPDLL\**" />
+    <None Remove="ForceBindIP\**" />
+    <None Remove="TestAppNative\**" />
+    <None Remove="TestApp\**" />
+    <Page Remove="build\**" />
+    <Page Remove="ForceBindIPDLL\**" />
+    <Page Remove="ForceBindIP\**" />
+    <Page Remove="TestAppNative\**" />
+    <Page Remove="TestApp\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <Content Include="FBI.ico" />
