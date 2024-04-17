@@ -1,4 +1,0 @@
-﻿[*.{cs,vb}]
-
-# IDE0049: Simplify Names
-dotnet_style_predefined_type_for_locals_parameters_members = false
