@@ -1,6 +1,6 @@
 # FBI (Force Bind IP)
 
-- based on [r1ch](https://r1ch.net/projects/forcebindip)'s Force Bind IP
+- based on [r1ch](https://r1ch.net/projects/forcebindip)'s Force Bind IP (Closed Source)
 
 ## Overview
 
