@@ -9,6 +9,8 @@ using System.Net.Http;
 using FileMode = System.IO.FileMode;
 using System.IO.Compression;
 using Application = System.Windows.Application;
+using System.Text.Json;
+
 
 namespace FBI
 {
@@ -17,8 +19,7 @@ namespace FBI
     /// </summary>
     public partial class MainWindow : Window
     {
-        // Define localVersion and RequiredFiles
-        private readonly string localVersion = "0.3.0";
+        private readonly string localVersion = "0.4.2";
         private readonly string[] RequiredFiles = new string[] { "BindIP.dll", "BindIP64.dll", "ForceBindIP.exe", "ForceBindIP64.exe" };
         private string ForceBindIPPath => Environment.CurrentDirectory;
         private string ForceBindExe;
@@ -28,20 +29,16 @@ namespace FBI
             x86 = 1,
             x64 = 2
         }
-        // Constructor
         public MainWindow()
         {
             InitializeComponent();
-            // Perform initialization tasks
             CheckRequiredFiles();
             DownloadBar.Visibility = Visibility.Hidden;
-            CheckForUpdates();
-            // Attach event handlers
             BrowseApp.Click += (sender, e) => OpenAppSelector();
             Start.Click += (sender, e) => LaunchApp();
             NetAdapter.DropDownOpened += (sender, e) => LoadAvailableNetworkAdapters();
         }
-        // Load available network adapters into the dropdown list
+
         private void LoadAvailableNetworkAdapters()
         {
             NetAdapter.Items.Clear();
@@ -58,7 +55,6 @@ namespace FBI
             }
         }
 
-        // Check if required files exist
         private void CheckRequiredFiles()
         {
             string curDir = Environment.CurrentDirectory;
@@ -66,13 +62,12 @@ namespace FBI
             {
                 if (!File.Exists(Path.Combine(curDir, s)))
                 {
-                    MessageBox.Show("Error code 1", "Error");
+                    MessageBox.Show("Missing file", "Error");
                     Environment.Exit(-1);
                 }
             }
         }
 
-        // Launch the selected application with ForceBindIP
         private void LaunchApp()
         {
             try
@@ -107,8 +102,6 @@ namespace FBI
             }
         }
 
-
-        // Open file selector dialog to choose application
         private void OpenAppSelector()
         {
             OpenFileDialog diag = new OpenFileDialog();
@@ -122,7 +115,6 @@ namespace FBI
             architecture.Content = GetPlatformFile(AppPath.Text);
         }
 
-        // Check for updates on GitHub repository
         private async void CheckForUpdates()
         {
             var client = new GitHubClient(new ProductHeaderValue("FBI"));
@@ -153,7 +145,6 @@ namespace FBI
             }
         }
 
-        // Check if an update is available
         private bool IsUpdateAvailable(string localVersion, string latestVersion)
         {
             Version local = new Version(localVersion);
@@ -162,7 +153,6 @@ namespace FBI
             return latest > local;
         }
 
-        // Download the update and show progress
         private async Task DownloadAndShowProgress(string downloadUrl)
         {
             using (var httpClient = new HttpClient())
@@ -204,7 +194,6 @@ namespace FBI
             }
         }
 
-        // Extract and install the downloaded update
         private void ExtractAndInstall(string zipFilePath)
         {
             try
@@ -219,8 +208,6 @@ namespace FBI
                 MessageBox.Show($"Error extracting or installing the latest version: {ex.Message}");
             }
         }
-
-        // Extract ZIP file
         private void ExtractZipFile(string zipFilePath)
         {
             try
@@ -234,7 +221,6 @@ namespace FBI
             }
         }
 
-        // Replace old version with the updated one
         private void ReplaceOldVersion(string tempFolderPath)
         {
             try
@@ -249,13 +235,12 @@ namespace FBI
 
                     Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
 
-                    // If the file is FBI.exe or FBI.dll, close the process before replacing it, bug found in version 0.2.0 which this code is in 0.1.0
                     if (Path.GetFileName(file) == "FBI.exe" || Path.GetFileName(file) == "FBI.dll")
                     {
                         foreach (var process in Process.GetProcessesByName(Path.GetFileNameWithoutExtension(destinationPath)))
                         {
-                            process.Kill(); // Kill the process using the file
-                            process.WaitForExit(); // Wait until the process is terminated
+                            process.Kill();
+                            process.WaitForExit();
                         }
                     }
 
@@ -270,32 +255,26 @@ namespace FBI
             }
         }
 
-
-        // Shutdown the application
         private void Exit_Click(object sender, RoutedEventArgs e)
         {
             Application.Current.Shutdown();
         }
 
-        // Minimize the window
         private void Minimize_Click(object sender, RoutedEventArgs e)
         {
             this.WindowState = WindowState.Minimized;
         }
 
-        // Set the window to always on top
         private void AlwaysOnTop_Checked(object sender, RoutedEventArgs e)
         {
             this.Topmost = true;
         }
 
-        // Unset the window from always on top
         private void AlwaysOnTop_Unchecked(object sender, RoutedEventArgs e)
         {
             this.Topmost = false;
         }
 
-        // Method to handle dragging the window
         private void A_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
@@ -304,7 +283,6 @@ namespace FBI
             }
         }
         
-        // Auto architecture detector
         static PlatformFile GetPlatformFile(string filePath)
         {
             using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
@@ -327,6 +305,59 @@ namespace FBI
                     return PlatformFile.x64;
                 else
                     return PlatformFile.Unknown;
+            }
+        }
+
+        private void CheckforUpdateButton_Click(object sender, RoutedEventArgs e)
+        {
+            CheckForUpdates();
+        }
+        private void SaveAppState(string fileName)
+        {
+            var appState = new AppState
+            {
+                SelectedAppPath = AppPath.Text,
+                SelectedNetworkAdapter = NetAdapter.SelectedItem?.ToString(),
+            };
+
+            string json = JsonSerializer.Serialize(appState);
+            File.WriteAllText(fileName, json);
+        }
+
+        private void LoadAppState(string fileName)
+        {
+            if (File.Exists(fileName))
+            {
+                string json = File.ReadAllText(fileName);
+                var appState = JsonSerializer.Deserialize<AppState>(json);
+
+                AppPath.Text = appState.SelectedAppPath;
+                NetAdapter.SelectedItem = appState.SelectedNetworkAdapter;
+            }
+        }
+
+
+        private void LoadButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "JSON files (*.json)|*.json";
+            openFileDialog.Title = "Load Application State";
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                LoadAppState(openFileDialog.FileName);
+            }
+        }
+
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "JSON files (*.json)|*.json";
+            saveFileDialog.Title = "Save Application State";
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                SaveAppState(saveFileDialog.FileName);
             }
         }
     }
