@@ -1,0 +1,1 @@
+The development branch incorporates architecture enhancements for FBI software, enabling support for both x64 and x86 applications, IPv6, a kill switch mechanism, delayed injection capabilities, and a redesigned graphical user interface.
