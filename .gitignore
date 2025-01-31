@@ -9,6 +9,7 @@
 *.user
 *.userosscache
 *.sln.docstates
+.vscode
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -363,3 +364,6 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /build
+dev/.vscode/settings.json
+dev/.vscode/c_cpp_properties.json
+dev/test_forcebindip.exe

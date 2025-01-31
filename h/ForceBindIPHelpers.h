@@ -81,4 +81,12 @@ static void WSAErrorHandler(
 #endif
 /* clang-format on */
 
+static inline void EnableKillSwitch(void) {
+    SetEnvironmentVariable(_T("FORCEDIP_DISABLE"), _T("1"));
+}
+
+static inline void DisableKillSwitch(void) {
+    SetEnvironmentVariable(_T("FORCEDIP_DISABLE"), NULL);
+}
+
 #endif /* WSA_WANTED */
