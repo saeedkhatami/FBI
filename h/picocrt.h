@@ -8,8 +8,9 @@
 #include <windows.h>
 #include <tchar.h>
 
-#if defined(NDEBUG)
+#if defined(NDEBUG) && !defined(USE_CRT)
 
+#if !defined(_MSC_VER) || defined(_CRTBLD)
 #pragma function(memset)
 void *__cdecl memset(void *ptr, int c, size_t len) {
     BYTE *p = ptr;
@@ -30,6 +31,7 @@ void *__cdecl memcpy(void *dst, const void *src, size_t size) {
     }
     return start;
 }
+#endif
 
 #endif
 

@@ -90,3 +90,18 @@ static inline void DisableKillSwitch(void) {
 }
 
 #endif /* WSA_WANTED */
+
+#if defined(_WIN64)
+    #define HOOK_PROLOGUE_SIZE 12
+#else
+    #define HOOK_PROLOGUE_SIZE 5
+#endif
+
+typedef struct {
+    BYTE origCode[HOOK_PROLOGUE_SIZE];
+    BYTE hookCode[HOOK_PROLOGUE_SIZE];
+    PROC trampoline;
+#if defined(_WIN64)
+    UINT_PTR padding;
+#endif
+} HookData;

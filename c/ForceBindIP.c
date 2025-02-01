@@ -299,6 +299,100 @@ static BOOL validate_ip_address(const TCHAR *ip, BOOL *is_ipv6)
     return FALSE;
 }
 
+static void usage(void) {
+    print_usage();
+    return;
+}
+
+static BOOL inject_dll(HANDLE hProcess, LPCTSTR dllPath) {
+    BOOL is64BitTarget = IsProcess64Bit(hProcess);
+#ifdef _WIN64
+    if (!is64BitTarget) {
+        MessageBox_Show("Cannot inject 64-bit DLL into 32-bit process");
+        return FALSE;
+    }
+#else
+    if (is64BitTarget) {
+        MessageBox_Show("Cannot inject 32-bit DLL into 64-bit process");
+        return FALSE;
+    }
+#endif
+
+    HMODULE module_kernel32 = GetModuleHandle(_T("KERNEL32"));
+    if (module_kernel32 == NULL) {
+        MessageBox_ShowError("Unable to get KERNEL32 handle");
+        return FALSE;
+    }
+
+    funcDecl_LoadLibrary func_LoadLibrary;
+    ResolveFunctionOnStack(module_kernel32, funcName_LoadLibrary, funcDecl_LoadLibrary, func_LoadLibrary);
+    if (func_LoadLibrary == NULL) {
+        MessageBox_ShowError("Unable to resolve LoadLibrary");
+        return FALSE;
+    }
+
+    LPVOID remoteBuf = VirtualAllocEx(hProcess, NULL, 4096, MEM_COMMIT, PAGE_READWRITE);
+    if (remoteBuf == NULL) {
+        MessageBox_ShowError("Unable to allocate remote memory");
+        return FALSE;
+    }
+
+    funcDecl_WriteProcessMemory func_WriteProcessMemory;
+    ResolveFunctionOnStack(module_kernel32, funcName_WriteProcessMemory, funcDecl_WriteProcessMemory, func_WriteProcessMemory);
+    if (func_WriteProcessMemory == NULL) {
+        MessageBox_ShowError("Unable to resolve WriteProcessMemory");
+        VirtualFreeEx(hProcess, remoteBuf, 0, MEM_RELEASE);
+        return FALSE;
+    }
+
+    SIZE_T bytesWritten;
+#ifdef UNICODE
+    if (func_WriteProcessMemory(hProcess, remoteBuf, dllPath, (lstrlenW(dllPath) + 1) * sizeof(WCHAR), &bytesWritten) != TRUE)
+#else
+    if (func_WriteProcessMemory(hProcess, remoteBuf, dllPath, (lstrlenA(dllPath) + 1) * sizeof(CHAR), &bytesWritten) != TRUE)
+#endif
+    {
+        MessageBox_ShowError("Unable to write remote memory");
+        VirtualFreeEx(hProcess, remoteBuf, 0, MEM_RELEASE);
+        return FALSE;
+    }
+
+    funcDecl_CreateRemoteThread func_CreateRemoteThread;
+    ResolveFunctionOnStack(module_kernel32, funcName_CreateRemoteThread, funcDecl_CreateRemoteThread, func_CreateRemoteThread);
+    if (func_CreateRemoteThread == NULL) {
+        MessageBox_ShowError("Unable to resolve CreateRemoteThread");
+        VirtualFreeEx(hProcess, remoteBuf, 0, MEM_RELEASE);
+        return FALSE;
+    }
+
+    HANDLE remoteThread = func_CreateRemoteThread(
+        hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)func_LoadLibrary, remoteBuf, 0, NULL);
+    if (remoteThread == NULL) {
+        MessageBox_ShowError("Unable to create remote thread");
+        VirtualFreeEx(hProcess, remoteBuf, 0, MEM_RELEASE);
+        return FALSE;
+    }
+
+    if (WaitForSingleObject(remoteThread, INFINITE) != WAIT_OBJECT_0) {
+        MessageBox_ShowError("Error waiting for remote thread");
+        CloseHandle(remoteThread);
+        VirtualFreeEx(hProcess, remoteBuf, 0, MEM_RELEASE);
+        return FALSE;
+    }
+
+    DWORD exitCode;
+    if (!GetExitCodeThread(remoteThread, &exitCode) || exitCode == 0) {
+        MessageBox_ShowError("DLL injection failed");
+        CloseHandle(remoteThread);
+        VirtualFreeEx(hProcess, remoteBuf, 0, MEM_RELEASE);
+        return FALSE;
+    }
+
+    CloseHandle(remoteThread);
+    VirtualFreeEx(hProcess, remoteBuf, 0, MEM_RELEASE);
+    return TRUE;
+}
+
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, TCHAR *lpCmdLine, int nShowCmd)
 {
     system_initialize();
@@ -450,11 +544,17 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, TCHAR *lpCmdL
         MessageBox_ShowError("ForceBindIP was unable to start the target program");
         return 1;
     }
+
     if (opts.delayed_injection)
     {
         printf("Waiting %lu milliseconds before injection...\n", opts.delay_ms);
         Sleep(opts.delay_ms);
         WaitForInputIdle(pInfo.hProcess, INFINITE);
+    }
+
+    if (!inject_dll(pInfo.hProcess, dllName)) {
+        TerminateProcess(pInfo.hProcess, 1);
+        return 1;
     }
 
     module_kernel32 = GetModuleHandle(_T("KERNEL32"));

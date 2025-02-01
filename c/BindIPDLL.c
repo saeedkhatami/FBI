@@ -335,6 +335,14 @@ static BOOL setup_hook_x64(BindIP_HookData *d, UINT_PTR endpoint)
     return TRUE;
 }
 
+static BOOL setup_hook(BindIP_HookData *d, UINT_PTR endpoint) {
+#ifdef _WIN64
+    return setup_hook_x64(d, endpoint);
+#else
+    return setup_hook_x86(d, endpoint);
+#endif
+}
+
 static int initialize_network_hooks(void)
 {
 #define IPADDR_MAX 64
@@ -371,8 +379,7 @@ static int initialize_network_hooks(void)
     else
     {
 
-        g_preferred_addr = inet_addr(ipAddrString);
-        if (g_preferred_addr == INADDR_NONE)
+        if (inet_pton(AF_INET, ipAddrString, &g_preferred_addr) != 1)
         {
             return FALSE;
         }
@@ -397,13 +404,9 @@ static int initialize_network_hooks(void)
         d->funcPtr = funcPtr;
         UINT_PTR trampolineEnd = (UINT_PTR)funcPtr + WINAPI_PROLOGUE_SIZE;
 
-#ifdef _WIN64
-        if (!setup_hook_x64(d, trampolineEnd))
+        if (!setup_hook(d, trampolineEnd)) {
             return FALSE;
-#else
-        if (!setup_hook_x86(d, trampolineEnd))
-            return FALSE;
-#endif
+        }
 
         if (WriteProcessMemory(hProcess, funcPtr, d->platform.hookedData, WINAPI_PROLOGUE_SIZE, NULL) != TRUE)
         {
