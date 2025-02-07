@@ -10,7 +10,7 @@
 #include "picocrt.h"
 
 #define WINIFACE_WANTED
-#include "ForceBindIPHelpers.h"
+#include "helper.h"
 
 typedef _Success_(return != FALSE) BOOL(WINAPI *fn_mem_write)(
     _In_ HANDLE h, _In_ LPVOID addr, _In_reads_bytes_(n) LPCVOID buf, _In_ SIZE_T n,
