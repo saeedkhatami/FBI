@@ -23,7 +23,7 @@ typedef _Ret_maybenull_ HANDLE(WINAPI *fn_thread_create)(
 
 #ifdef UNICODE
 typedef _Ret_maybenull_ HMODULE(WINAPI *fn_load_lib)(_In_ LPCWSTR name);
-static const CHAR sz_load_lib[] = "LoadLibraryW";
+static const TCHAR sz_load_lib[] = _T("LoadLibraryW");
 #else
 typedef _Ret_maybenull_ HMODULE(WINAPI *fn_load_lib)(_In_ LPCSTR name);
 static const CHAR sz_load_lib[] = "LoadLibraryA";
@@ -54,6 +54,7 @@ static const CHAR funcName_WriteProcessMemory[] = "WriteProcessMemory";
 
 PTCHAR lstrrchr(PTCHAR str, TCHAR c)
 {
+    (void)c;
     for (PTCHAR p = str + lstrlen(str); p >= str; --p)
     {
         if (*p == '\\')
@@ -105,11 +106,12 @@ TCHAR *LTrimCommandLine(TCHAR *cmdLine)
 
 static BOOL IsProcess64Bit(HANDLE hProcess)
 {
+    (void)hProcess;
     BOOL isWow64 = FALSE;
     BOOL is64BitOS = FALSE;
     typedef BOOL(WINAPI * LPFN_ISWOW64PROCESS)(HANDLE, PBOOL);
     LPFN_ISWOW64PROCESS fnIsWow64Process =
-        (LPFN_ISWOW64PROCESS)GetProcAddress(GetModuleHandle(_T("kernel32")), "IsWow64Process");
+        (LPFN_ISWOW64PROCESS)GetProcAddress(GetModuleHandle(_T("KERNEL32")), "IsWow64Process");
 
     if (fnIsWow64Process)
     {
@@ -131,6 +133,7 @@ static BOOL IsProcess64Bit(HANDLE hProcess)
 
 static BOOL GetDllPath(HANDLE hProcess, LPTSTR dllPath, DWORD maxLen)
 {
+    (void)hProcess;
     if (GetModuleFileName(NULL, dllPath, maxLen) == 0)
     {
         return FALSE;
@@ -395,6 +398,7 @@ static BOOL inject_dll(HANDLE hProcess, LPCTSTR dllPath) {
 
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, TCHAR *lpCmdLine, int nShowCmd)
 {
+    (void)hInstance; (void)hPrevInstance; (void)nShowCmd;
     system_initialize();
 
     WSADATA wsaData;
@@ -514,7 +518,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, TCHAR *lpCmdL
 
             if (lstrcmp(ipAddrToBind, wAdapterName) == 0)
             {
-                lstrcpyn(ipAddrToBind, p_AdapterInfo->IpAddressList.IpAddress.String, sizeof(ipAddrToBind));
+                lstrcpyn(ipAddrToBind, p_AdapterInfo->IpAddressList.IpAddress.String, countof(ipAddrToBind));
                 break;
             }
             p_AdapterInfo = p_AdapterInfo->Next;

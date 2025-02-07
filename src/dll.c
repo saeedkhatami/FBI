@@ -419,6 +419,8 @@ static int initialize_network_hooks(void)
 
 int WINAPI DllMain(HANDLE hModule, DWORD reason, LPVOID reserved)
 {
+    (void)hModule; (void)reserved; // Silence warnings C4100
+
     switch (reason)
     {
     case DLL_PROCESS_ATTACH:
