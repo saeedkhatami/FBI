@@ -3,11 +3,8 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <iphlpapi.h>
-#include <tchar.h>
-
 #define WHOAMI "BindIP DLL"
 #include "picocrt.h"
-
 #define WSA_WANTED
 #include "helper.h"
 

@@ -1,11 +1,10 @@
 #pragma once
-
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <tchar.h>
+#include <winsock2.h>
 
 #if defined(WSA_WANTED)
-#include <winsock2.h>
+#include <ws2tcpip.h>
 #endif
 
 #ifndef WHOAMI
@@ -13,10 +12,8 @@
 #endif
 
 #define countof(a) (sizeof(a) / sizeof((a)[0]))
-
 #define htobe16(x) ((((x) & 0xff) << 8) | ((x) >> 8))
 #define be16toh htobe16
-
 #define STRINGIZE(s) STRINGIZE2(s)
 #define STRINGIZE2(s) #s
 
