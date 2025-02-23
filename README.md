@@ -1,19 +1,36 @@
-# Version 2
+# ForceBindIP Version 2
 
-The development branch incorporates architectural enhancements for the FBI software, including:
+A rewrite of ForceBindIP in C++ using MinHook library. This tool allows forcing applications to use specific network interfaces through IP binding.
 
-- Support for both x64 and x86 applications ✓
-- IPv6 support (Logically implemented) ✓
-- Kill switch mechanism
-  - Implementation based on IP connectivity
-  - Two fallback options:
-    - Switch to alternate IP
-    - Fallback to 0.0.0.0 (No Connection)
-  - Status: Pending connection retry timing logic
-- Delayed injection capabilities
-  - Status: In Progress
-  - Known issues:
-    - Application suspension causes race conditions
-    - IP priority conflicts with Windows settings
-- Redesigned graphical user interface
-  - Status: Pending
+## Features
+
+- Supports both IPv6 and IPv4 binding
+- Tested and working on x64 applications (IPv4)
+- IPv6 functionality implemented but needs further testing
+
+## Build Environment
+
+- Built using Visual Studio 2022
+- Requires MinHook library
+
+## Usage
+
+```powershell
+injector.exe <ipv6_or_ipv4_address> <target_app_path>
+```
+
+### Example Output
+
+```powershell
+DLL injected successfully with preferred IP: <ipv6_or_ipv4_address>
+```
+
+## Status
+
+- ✅ IPv4 binding fully tested on x64 applications
+- ⏳ IPv6 binding needs additional testing
+- ✅ MinHook integration complete
+
+## Notes
+
+Please report any issues or success stories through the issue tracker.
