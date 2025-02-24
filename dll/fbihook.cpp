@@ -2,8 +2,6 @@
 #include "MinHook.h"
 #include <iphlpapi.h>
 
-#pragma comment(lib, "iphlpapi.lib")
-
 static DWORD g_preferred_ipv4_addr = 0;
 static IN6_ADDR g_preferred_ipv6_addr = { 0 };
 static DWORD g_interface_index = 0;
