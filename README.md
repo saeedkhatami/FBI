@@ -16,7 +16,7 @@ A rewrite of ForceBindIP in C++ using MinHook library. This tool allows forcing 
 ## Usage
 
 ```powershell
-injector.exe <ipv6_or_ipv4_address> <target_app_path>
+injector.exe <interface> or <ip address> <program> [args...]\n"
 ```
 
 ### Example Output
