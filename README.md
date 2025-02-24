@@ -16,8 +16,24 @@ A rewrite of ForceBindIP in C++ using MinHook library. This tool allows forcing 
 ## Usage
 
 ```powershell
-injector.exe <interface> or <ip address> <program> [args...]\n"
+injector.exe [-4 <IPv4> | -6 <IPv6> | -i <GUID>] <program> [args...]\n"
 ```
+
+### Example usage
+
+```powershell
+injector.exe -4 192.168.1.1 <program-exe> [args...]
+```
+
+```powershell
+injector.exe -6 fdfe:dcba:9876::1 <program-exe> [args...]
+```
+
+```powershell
+injector.exe -i 11111111-2222-3333-4444-555555555555 <program-exe> [args...]
+```
+
+NOTE that in `-i` you dont need to put `{}`
 
 ### Example Output
 
