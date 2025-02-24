@@ -55,36 +55,92 @@ bool inject_dll(HANDLE hProcess, const TCHAR* dllPath)
 
 int _tmain(int argc, TCHAR* argv[])
 {
-    if (argc < 3)
+    if (argc < 2)
     {
-        _tprintf(_T("Usage: injector.exe <interface> <program> [args...]\n"));
+        _tprintf(_T("Usage: injector.exe [-4 <IPv4> | -6 <IPv6> | -i <GUID>] <program> [args...]\n"));
         return 1;
     }
 
-    TCHAR* interface_str = argv[1];
+    std::string injection_type;
+    int program_index = -1;
 
-    if (interface_str[0] == _T('{'))
+    for (int i = 1; i < argc; )
     {
-        SetEnvironmentVariable(_T("PREFERRED_INTERFACE"), interface_str);
-    }
-    else
-    {
-        std::basic_string<TCHAR> pref_ip;
-        if (_tcschr(interface_str, _T(':')))
+        if (_tcscmp(argv[i], _T("-4")) == 0)
         {
-            pref_ip = _T("IPv6:") + std::basic_string<TCHAR>(interface_str);
+            if (!injection_type.empty())
+            {
+                _tprintf(_T("Error: Multiple injection methods specified\n"));
+                return 1;
+            }
+            if (i + 1 >= argc || argv[i + 1][0] == _T('-'))
+            {
+                _tprintf(_T("Error: -4 requires an IPv4 address\n"));
+                return 1;
+            }
+            std::basic_string<TCHAR> ipv4_addr = argv[i + 1];
+            SetEnvironmentVariable(_T("PREFERRED_IP"), (_T("IPv4:") + ipv4_addr).c_str());
+            injection_type = "ipv4";
+            i += 2;
+        }
+        else if (_tcscmp(argv[i], _T("-6")) == 0)
+        {
+            if (!injection_type.empty())
+            {
+                _tprintf(_T("Error: Multiple injection methods specified\n"));
+                return 1;
+            }
+            if (i + 1 >= argc || argv[i + 1][0] == _T('-'))
+            {
+                _tprintf(_T("Error: -6 requires an IPv6 address\n"));
+                return 1;
+            }
+            std::basic_string<TCHAR> ipv6_addr = argv[i + 1];
+            SetEnvironmentVariable(_T("PREFERRED_IP"), (_T("IPv6:") + ipv6_addr).c_str());
+            injection_type = "ipv6";
+            i += 2;
+        }
+        else if (_tcscmp(argv[i], _T("-i")) == 0)
+        {
+            if (!injection_type.empty())
+            {
+                _tprintf(_T("Error: Multiple injection methods specified\n"));
+                return 1;
+            }
+            if (i + 1 >= argc || argv[i + 1][0] == _T('-'))
+            {
+                _tprintf(_T("Error: -i requires a GUID\n"));
+                return 1;
+            }
+            std::basic_string<TCHAR> guid = argv[i + 1];
+            std::basic_string<TCHAR> formatted_guid = _T("{") + guid + _T("}");
+            SetEnvironmentVariable(_T("PREFERRED_INTERFACE"), formatted_guid.c_str());
+            injection_type = "interface";
+            i += 2;
+        }
+        else if (argv[i][0] != _T('-'))
+        {
+            program_index = i;
+            break;
         }
         else
         {
-            pref_ip = _T("IPv4:") + std::basic_string<TCHAR>(interface_str);
+            _tprintf(_T("Unknown option: %s\n"), argv[i]);
+            return 1;
         }
-        SetEnvironmentVariable(_T("PREFERRED_IP"), pref_ip.c_str());
+    }
+
+    if (program_index == -1)
+    {
+        _tprintf(_T("Error: No program specified\n"));
+        return 1;
     }
 
     std::basic_string<TCHAR> cmdline;
-    for (int i = 2; i < argc; i++)
+    for (int i = program_index; i < argc; i++)
     {
-        if (i > 2) cmdline += _T(" ");
+        if (i > program_index)
+            cmdline += _T(" ");
         cmdline += argv[i];
     }
 
@@ -122,6 +178,23 @@ int _tmain(int argc, TCHAR* argv[])
     ResumeThread(pi.hThread);
     CloseHandle(pi.hProcess);
     CloseHandle(pi.hThread);
-    _tprintf(_T("DLL injected successfully with interface: %s\n"), interface_str);
+
+    if (injection_type == "ipv4")
+    {
+        _tprintf(_T("DLL injected successfully with IPv4: %s\n"), argv[2]);
+    }
+    else if (injection_type == "ipv6")
+    {
+        _tprintf(_T("DLL injected successfully with IPv6: %s\n"), argv[2]);
+    }
+    else if (injection_type == "interface")
+    {
+        _tprintf(_T("DLL injected successfully with interface GUID: %s\n"), argv[2]);
+    }
+    else
+    {
+        _tprintf(_T("DLL injected successfully with default settings\n"));
+    }
+
     return 0;
 }
