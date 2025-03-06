@@ -2,19 +2,6 @@
 
 #include "helper.h"
 
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <iphlpapi.h>
-
-#include <tlhelp32.h>
-#include <string>
-#include <cstring>
-#include <algorithm>
-#include <cwctype>
-#include <string>
-#include <conio.h>
-#include <iostream>
-
 static bool verbose = false;
 
 bool is_link_local_ipv6(const IN6_ADDR &addr)
@@ -211,7 +198,20 @@ int _tmain(int argc, TCHAR *argv[])
 
     if (argc < 2)
     {
-        _tprintf(_T("Usage: injector.exe [-v] [-l] [-4 <IPv4> | -6 <IPv6> | -i <GUID>] [-t] [-u] [-p <port>] <program> [args...]\n"));
+        _tprintf(_T("Usage: injector.exe [options] <program> [args...]\n"));
+        _tprintf(_T("Options:\n"));
+        _tprintf(_T("  -v               : Enable verbose output in terminal for injector and debug output from DLL\n"));
+        _tprintf(_T("  -o <logfile>     : Save DLL logs to the specified file (does not affect terminal output)\n"));
+        _tprintf(_T("  -l               : List available network interfaces with GUIDs and IP addresses\n"));
+        _tprintf(_T("Injection Methods (choose one):\n"));
+        _tprintf(_T("  -4 <IPv4>        : Use specified IPv4 address for binding\n"));
+        _tprintf(_T("  -6 <IPv6>        : Use specified IPv6 address for binding\n"));
+        _tprintf(_T("  -i <GUID>        : Use the IP address associated with the specified interface GUID\n"));
+        _tprintf(_T("Binding Options:\n"));
+        _tprintf(_T("  -t               : Bind TCP sockets (default if no binding specified)\n"));
+        _tprintf(_T("  -u               : Bind UDP sockets (default if no binding specified)\n"));
+        _tprintf(_T("  -p <port>        : Bind to the specified port (requires -t or -u)\n"));
+        _tprintf(_T("Note: If neither -t nor -u is specified, both TCP and UDP sockets will be bound by default.\n"));
         return 1;
     }
 
@@ -329,6 +329,16 @@ int _tmain(int argc, TCHAR *argv[])
                 _tprintf(_T("Error: Invalid port number %s\n"), argv[i + 1]);
                 return 1;
             }
+            i += 2;
+        }
+        else if (_tcscmp(argv[i], _T("-o")) == 0)
+        {
+            if (i + 1 >= argc || argv[i + 1][0] == _T('-'))
+            {
+                _tprintf(_T("Error: -o requires a log file path\n"));
+                return 1;
+            }
+            SetEnvironmentVariable(_T("LOG_FILE"), argv[i + 1]);
             i += 2;
         }
         else if (argv[i][0] != _T('-'))
